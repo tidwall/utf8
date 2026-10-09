@@ -3,9 +3,20 @@
 // license that can be found in the LICENSE file.
 //
 // https://github.com/tidwall/utf8
+
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+
+#ifndef UTF8_STATIC
+#include "utf8.h"
+#else
+#define UTF8_EXTERN static
+#endif
+
+#ifndef UTF8_EXTERN
+#define UTF8_EXTERN
+#endif
 
 #define UTF8_REPL 0xFFFD
 
@@ -58,6 +69,7 @@ fail:
 // Parses the next utf8 code point from a data stream.
 // Returns the code point and number of bytes read.
 // Returns zero on utf8 error or if the len is zero.
+UTF8_EXTERN
 size_t utf8_next(const void *data, size_t len, uint32_t *cp, bool *valid) {
     const uint8_t *str = data;
     if (len > 0 && str[0] < 128) {
@@ -80,6 +92,7 @@ size_t utf8_next(const void *data, size_t len, uint32_t *cp, bool *valid) {
 
 // Parses the next UTF-8 code point from a data stream.
 // ASSUMPTION: 'data' and 'cp' are never NULL, and 'len' > 0.
+UTF8_EXTERN
 size_t utf8_next_nocheck(const void *data, size_t len, uint32_t *cp) {
     const uint8_t *str = data;
     if (str[0] < 128) {
@@ -115,6 +128,7 @@ static size_t _utf8_last_(const uint8_t *str, size_t len, uint32_t *cp,
 }
 
 // Parses the last UTF-8 code point from a data stream.
+UTF8_EXTERN
 size_t utf8_last(const void *data, size_t len, uint32_t *cp, bool *valid) {
     const uint8_t *str = data;
     if (len > 0 && str[len-1] < 128) {
@@ -127,6 +141,7 @@ size_t utf8_last(const void *data, size_t len, uint32_t *cp, bool *valid) {
 
 // Parses the last UTF-8 code point from a data stream.
 // ASSUMTION: 'data' and 'cp' are never NULL, and 'len' > 0.
+UTF8_EXTERN
 size_t utf8_last_nocheck(const void *data, size_t len, uint32_t *cp) {
     const uint8_t *str = data;
     if (str[len-1] < 128) {
@@ -138,6 +153,7 @@ size_t utf8_last_nocheck(const void *data, size_t len, uint32_t *cp) {
 }
 
 // Checks if provided data is valid UTF-8.
+UTF8_EXTERN
 bool utf8_valid(const void *data, size_t len) {
     const uint8_t *s = data;
     const uint8_t *e = s+len;
@@ -157,6 +173,7 @@ bool utf8_valid(const void *data, size_t len) {
 
 // Returns the number of bytes needed to encode a code point into UTF-8.
 // Returns zero if the code point cannot be encoded.
+UTF8_EXTERN
 size_t utf8_code_point_len(uint32_t cp) {
     if (cp <= 127) return 1;
     if (cp <= 2047) return 2;
@@ -169,6 +186,7 @@ size_t utf8_code_point_len(uint32_t cp) {
 // Encodes a code point as UTF-8 to data and return the number of bytes written.
 // Invalid code points are replaced with 0xFFFD (Unicode Replacement Character).
 // ASSUMPTION: 'data' must not be NULL and large enough to store up to 4 bytes.
+UTF8_EXTERN
 size_t utf8_put(void *data, uint32_t cp) {
     uint8_t *str = data;
     if (cp < 128) {
